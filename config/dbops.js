@@ -2,30 +2,30 @@ const { sql } = require("./db");
 
 
 const fetchVehiclebyReg = async (reg) => {
-    const vehicle = await sql`
+  const vehicle = await sql`
     SELECT * FROM vehicles WHERE registration = ${reg.trim().toUpperCase()} AND is_deleted = false
 `;
-  
-return vehicle;
+
+  return vehicle;
 }
 
 
 const fetchVehiclebyId = async (reg) => {
-    const vehicle = await sql`
+  const vehicle = await sql`
     SELECT * FROM vehicles WHERE id = ${id} AND is_deleted = false
 `;
-  
-return vehicle;
+
+  return vehicle;
 }
 
 const fetchVehicles = async () => {
-    const vehicles = await sql`
+  const vehicles = await sql`
     SELECT * FROM vehicles WHERE is_deleted = false`;
-  
-    return (vehicles);
+
+  return (vehicles);
 }
-const insertVehicle = async (vehicle)=>{
-    await sql`
+const insertVehicle = async (vehicle) => {
+  await sql`
     INSERT INTO vehicles (
         name, fuel_type, mot_test, tax, tax_expiry, mot_expiry, registration, recall,last_mileage
     ) VALUES (
@@ -42,25 +42,34 @@ const insertVehicle = async (vehicle)=>{
 `;
 }
 
+const updateLastMileage = async (id, newMileage) => {
+  await sql`
+    UPDATE vehicles
+    SET last_mileage = ${newMileage}
+    WHERE id = ${id}
+  `;
+};
+
+
 
 const softDeleteVehicle = async (id) => {
-    const result = await sql`
+  const result = await sql`
         UPDATE vehicles SET is_deleted = true WHERE id = ${id}
     `;
-    return result;
+  return result;
 };
 
 
 const reAddsoftDeletedVehicle = async (id) => {
-    const result = await sql`
+  const result = await sql`
         UPDATE vehicles SET is_deleted = false WHERE id = ${id}
     `;
-    return result;
+  return result;
 };
 
 const vanIssues = async (vanId) => {
-    try {
-        const issues = await sql`
+  try {
+    const issues = await sql`
             SELECT 
                 vi.id AS issue_id,
                 COALESCE(s.first_name || ' ' || s.last_name, 'Deleted User') AS reported_by,
@@ -74,15 +83,15 @@ const vanIssues = async (vanId) => {
             ORDER BY vi.created_at DESC;
         `;
 
-        return issues;
-    } catch (error) {
-        console.error('Error fetching van issues:', error);
-        throw error;
-    }
+    return issues;
+  } catch (error) {
+    console.error('Error fetching van issues:', error);
+    throw error;
+  }
 };
 const fixVanIssue = async (issueId) => {
-    try {
-        const result = await sql`
+  try {
+    const result = await sql`
             UPDATE van_issues
             SET fixed = true,
                 updated_at = NOW()
@@ -90,30 +99,30 @@ const fixVanIssue = async (issueId) => {
             RETURNING *;
         `;
 
-        return result[0];  // return the updated issue (or undefined if not found)
-    } catch (error) {
-        console.error('Error fixing van issue:', error);
-        throw error;
-    }
+    return result[0];  // return the updated issue (or undefined if not found)
+  } catch (error) {
+    console.error('Error fixing van issue:', error);
+    throw error;
+  }
 };
 
 const createVanIssue = async (driverId, vanId, description) => {
-    try {
-        const newIssue = await sql`
+  try {
+    const newIssue = await sql`
             INSERT INTO van_issues (driver_id, van_id, description, fixed, created_at, updated_at)
             VALUES (${driverId}, ${vanId}, ${description}, false, NOW(), NOW())
             RETURNING *;
         `;
 
-        return newIssue[0];  // return the newly created issue
-    } catch (error) {
-        console.error('Error creating van issue:', error);
-        throw error;
-    }
+    return newIssue[0];  // return the newly created issue
+  } catch (error) {
+    console.error('Error creating van issue:', error);
+    throw error;
+  }
 };
 
 const getDriverHistoryByVan = async (vanId) => {
-    const history = await sql`
+  const history = await sql`
       SELECT 
         dh.id,
         dh.pickup_date,
@@ -126,11 +135,11 @@ const getDriverHistoryByVan = async (vanId) => {
         dh.dropoff_date IS NULL DESC,  -- NULLs first
         dh.dropoff_date DESC;          -- then newest first
     `;
-  
-    return history;
+
+  return history;
 };
 const addDriverHistory = async (driverId, vanId) => {
-    return await sql`
+  return await sql`
       INSERT INTO driver_history (
         driver_id,
         van_id,
@@ -141,9 +150,9 @@ const addDriverHistory = async (driverId, vanId) => {
         CURRENT_DATE
       ) RETURNING *;
     `;
-  };
-  const returnVan = async (driverId, vanId) => {
-    return await sql`
+};
+const returnVan = async (driverId, vanId) => {
+  return await sql`
       UPDATE driver_history
       SET dropoff_date = CURRENT_DATE
       WHERE driver_id = ${driverId}
@@ -151,19 +160,19 @@ const addDriverHistory = async (driverId, vanId) => {
         AND dropoff_date IS NULL
       RETURNING *;
     `;
-  };
-  
-  const insertStaff = async ({
-    first_name, last_name, role, email, phone, nin, address,
-    is_driver, license_number, has_pts, pts_number,
-    ticket_coss, ticket_es, ticket_mc,
-    ticket_ss, ticket_points, ticket_lxa, ticket_dumper, ticket_roller, ticket_small_tools, ticket_hand_trolley,
-    available_monday, available_tuesday, available_wednesday,
-    available_thursday, available_friday, available_saturday, available_sunday,
-    jobtype_civils, jobtype_surveying, jobtype_hbe, jobtype_management,
-    employment_type, is_activated
-  }) => {
-    const result = await sql`
+};
+
+const insertStaff = async ({
+  first_name, last_name, role, email, phone, nin, address,
+  is_driver, license_number, has_pts, pts_number,
+  ticket_coss, ticket_es, ticket_mc,
+  ticket_ss, ticket_points, ticket_lxa, ticket_dumper, ticket_roller, ticket_small_tools, ticket_hand_trolley,
+  available_monday, available_tuesday, available_wednesday,
+  available_thursday, available_friday, available_saturday, available_sunday,
+  jobtype_civils, jobtype_surveying, jobtype_hbe, jobtype_management,
+  employment_type, is_activated
+}) => {
+  const result = await sql`
       INSERT INTO staff (
         first_name, last_name, role, email, phone, nin, address,
         is_driver, license_number, has_pts, pts_number,
@@ -185,37 +194,55 @@ const addDriverHistory = async (driverId, vanId) => {
       )
       RETURNING *;
     `;
-  
-    return result[0];
-  };
-  
 
-  const getUserByEmail = async (email) => {
-    const result = await sql`
+  return result[0];
+};
+
+
+const getUserByEmail = async (email) => {
+  const result = await sql`
       SELECT * FROM staff WHERE email = ${email} AND is_deleted=false
     `;
-  
-    return result.length > 0 ? result[0] : null;
+
+  return result.length > 0 ? result[0] : null;
 };
 const getUserById = async (id) => {
-    const result = await sql`
+  const result = await sql`
       SELECT * FROM staff WHERE id = ${id} AND is_deleted=false
     `;
-  
-    return result.length > 0 ? result[0] : null;
+
+  return result.length > 0 ? result[0] : null;
 };
+
+const getUserDetailsById = async (id) => {
+  const result = await sql`
+      SELECT 
+        id, first_name, last_name, role, email, phone, nin, address,
+        is_driver, license_number, has_pts, pts_number,
+        ticket_coss, ticket_es, ticket_mc, ticket_points,ticket_lxa,ticket_dumper,ticket_roller,ticket_small_tools,ticket_hand_trolley,
+        available_monday, available_tuesday, available_wednesday,
+        available_thursday, available_friday, available_saturday, available_sunday,
+        jobtype_civils, jobtype_surveying, jobtype_hbe, jobtype_management,
+        employment_type, is_activated
+      FROM staff
+      WHERE id = ${id} AND is_deleted = false
+    `;
+
+  return result.length > 0 ? result[0] : null;
+
+}
 const updateUserPasswordById = async (id, hashedPassword) => {
-    const result = await sql`
+  const result = await sql`
       UPDATE staff
       SET password = ${hashedPassword}, is_activated = true
       WHERE id = ${id}
       RETURNING *;
     `;
-  
-    return result.length > 0 ? result[0] : null;
-  };
-  const getAllUsers = async () => {
-    const result = await sql`
+
+  return result.length > 0 ? result[0] : null;
+};
+const getAllUsers = async () => {
+  const result = await sql`
       SELECT 
         id, first_name, last_name, role, email, phone, nin, address,
         is_driver, license_number, has_pts, pts_number,
@@ -227,52 +254,74 @@ const updateUserPasswordById = async (id, hashedPassword) => {
       FROM staff
       WHERE is_deleted = false
     `;
-    return result;
-  };
+  return result;
+};
 
-  const updateUserById = async (id, updates) => {
-    const fields = Object.keys(updates);
-    const values = Object.values(updates);
-  
-    if (fields.length === 0) return null;
-  
-    const assignments = fields.map((field, index) => sql`${sql(field)} = ${values[index]}`);
-  
-    const result = await sql`
+const getAllDrivers = async () => {
+  const result = await sql`
+      SELECT 
+        id, first_name, last_name
+      FROM staff
+      WHERE is_deleted = false AND is_driver = true
+    `;
+  return result;
+};
+
+const updateUserById = async (id, updates) => {
+  const fields = Object.keys(updates);
+  const values = Object.values(updates);
+
+  if (fields.length === 0) return null;
+
+  const assignments = fields.map((field, index) => sql`${sql(field)} = ${values[index]}`);
+
+  const result = await sql`
       UPDATE staff
       SET ${sql.join(assignments, sql`, `)}
       WHERE id = ${id}
       RETURNING *;
     `;
-  
-    return result.length > 0 ? result[0] : null;
-  };
-  
-  const getAllGarages = async () => {
-    const result = await sql`
+
+  return result.length > 0 ? result[0] : null;
+};
+
+const deleteUserById = async (id) => {
+  const result = await sql`
+      UPDATE staff
+      SET is_deleted = true
+      WHERE id = ${id}
+      RETURNING *;
+    `;
+
+  return result.length > 0 ? result[0] : null;
+
+}
+
+const getAllGarages = async () => {
+  const result = await sql`
       SELECT * FROM garage
       ORDER BY name;
     `;
-    return result;
-  };
+  return result;
+};
 
-  const addGarage = async ({ name, address, phone }) => {
-    const result = await sql`
+const addGarage = async ({ name, address, phone }) => {
+  const result = await sql`
       INSERT INTO garage (name, address, phone)
       VALUES (${name}, ${address}, ${phone})
       RETURNING *;
     `;
-    return result[0];
-  };
-  
-  const bookGarageAppointment = async ({
-    van_id,
-    garage_id,
-    service,
-    appointment_date,
-    appointment_time
-  }) => {
-    const result = await sql`
+  return result[0];
+};
+
+const bookGarageAppointment = async ({
+  van_id,
+  garage_id,
+  service,
+  appointment_date,
+  appointment_time
+}) => {
+  const result = await sql`
       INSERT INTO garage_appointments (
         van_id, garage_id, service, appointment_date, appointment_time
       ) VALUES (
@@ -280,10 +329,10 @@ const updateUserPasswordById = async (id, hashedPassword) => {
       )
       RETURNING *;
     `;
-    return result[0];
-  };
-  const getAllGarageAppointments = async () => {
-    const result = await sql`
+  return result[0];
+};
+const getAllGarageAppointments = async () => {
+  const result = await sql`
       SELECT 
         ga.id,
         ga.service,
@@ -298,11 +347,11 @@ const updateUserPasswordById = async (id, hashedPassword) => {
       JOIN vehicles v ON ga.van_id = v.id
       ORDER BY ga.appointment_date DESC, ga.appointment_time DESC;
     `;
-    return result;
-  };
+  return result;
+};
 
-  const getGarageAppointments = async (id) => {
-    const result = await sql`
+const getGarageAppointments = async (id) => {
+  const result = await sql`
       SELECT 
         ga.id,
         ga.service,
@@ -318,55 +367,55 @@ const updateUserPasswordById = async (id, hashedPassword) => {
       WHERE ga.garage_id = ${id}
       ORDER BY ga.appointment_date DESC, ga.appointment_time DESC;
     `;
-    return result;
-  };
-  const createClient = async (name) => {
-    const result = await sql`
+  return result;
+};
+const createClient = async (name) => {
+  const result = await sql`
       INSERT INTO clients (name)
       VALUES (${name})
       RETURNING *;
     `;
-    return result[0];
-  };
-  const getAllClients = async () => {
-    const result = await sql`
+  return result[0];
+};
+const getAllClients = async () => {
+  const result = await sql`
       SELECT * FROM clients
       WHERE is_deleted = false
       ORDER BY created_at DESC;
     `;
-    return result;
-  };
-  
-  const insertProjectData = async (projectData) => {
-  
-    return await sql.begin(async (tx) => {
-      // Step 1: Insert the project into the projects table
-      const [project] = await tx`
+  return result;
+};
+
+const insertProjectData = async (projectData) => {
+
+  return await sql.begin(async (tx) => {
+    // Step 1: Insert the project into the projects table
+    const [project] = await tx`
         INSERT INTO projects (client_id, location)
         VALUES (${projectData[0].client_id}, ${projectData[0].location})
         RETURNING id;
       `;
-  
-      // Step 2: Insert shifts for each project
-      for (const shiftData of projectData) {
-        const { start_date, end_date, start_time, end_time, roles } = shiftData;
-  
-        // Insert the shift into the project_shifts table
-        const [projectShift] = await tx`
+
+    // Step 2: Insert shifts for each project
+    for (const shiftData of projectData) {
+      const { start_date, end_date, start_time, end_time, roles } = shiftData;
+
+      // Insert the shift into the project_shifts table
+      const [projectShift] = await tx`
           INSERT INTO project_shifts (
             project_id, shift_date, start_time, end_time
           ) VALUES (
             ${project.id}, ${start_date}, ${start_time}, ${end_time}
           ) RETURNING id;
         `;
-  
-        // Step 3: Insert roles for each shift
-        for (const role of roles) {
-          const jobTypes = role.jobTypes || {};
-          const tickets = role.tickets || {};
-       
-  
-          await tx`
+
+      // Step 3: Insert roles for each shift
+      for (const role of roles) {
+        const jobTypes = role.jobTypes || {};
+        const tickets = role.tickets || {};
+
+
+        await tx`
             INSERT INTO project_shift_roles (
               project_shift_id,
               role,
@@ -404,13 +453,13 @@ const updateUserPasswordById = async (id, hashedPassword) => {
               ${tickets.Points || false}
             );
           `;
-        }
       }
-  
-      return project;
-    });
-  };
-  
+    }
+
+    return project;
+  });
+};
+
 
 const getProjectsByClientId = async (clientId) => {
   const result = await sql`
@@ -483,7 +532,7 @@ const getProjectsByClientAndDate = async (clientId, startDate, endDate) => {
 };
 
 
-const getProjectsForWeek = async ( startDate, endDate) => {
+const getProjectsForWeek = async (startDate, endDate) => {
   const result = await sql`
     SELECT 
       p.id AS project_id,
@@ -526,12 +575,11 @@ async function insertShiftRoleAssignments(assignments) {
 
   try {
     const result = await sql`
-      INSERT INTO project_shift_role_assignments ${
-        sql(assignments.map(a => ({
-          project_shift_role_id: a.project_shift_role_id,
-          staff_id: a.staff_id,
-          notes: a.notes || null
-        })))
+      INSERT INTO project_shift_role_assignments ${sql(assignments.map(a => ({
+      project_shift_role_id: a.project_shift_role_id,
+      staff_id: a.staff_id,
+      notes: a.notes || null
+    })))
       }
       RETURNING *;
     `;
@@ -596,4 +644,99 @@ async function getRequiredCountByRoleId(project_shift_role_id) {
   return result ? result.required_count : null;
 }
 
-module.exports = {getRequiredCountByRoleId, deleteAssignment, countAssignedStaff, updateShiftRoleAssignment, insertShiftRoleAssignments, getProjectsForWeek, getProjectsByClientAndDate, getProjectsByClientId, insertProjectData, getAllClients, createClient, getGarageAppointments, getAllGarageAppointments, bookGarageAppointment, addGarage, getAllGarages, updateUserById, getAllUsers,  getUserById, updateUserPasswordById, getUserByEmail, insertStaff, returnVan, addDriverHistory,getDriverHistoryByVan,fetchVehiclebyReg,fetchVehicles, insertVehicle,softDeleteVehicle,reAddsoftDeletedVehicle, fetchVehiclebyId, vanIssues, fixVanIssue, createVanIssue}
+async function getVansNotInUse() {
+
+  const result = await sql`
+    SELECT
+      v.*
+    FROM
+      vehicles v
+    LEFT JOIN driver_history dh
+      ON dh.van_id = v.id
+      AND dh.dropoff_date IS NULL
+    WHERE
+      v.is_deleted = FALSE
+      AND dh.van_id IS NULL;
+      `;
+  return result ;
+
+}
+
+async function getVansInUseByStaff(staffId) {
+  const result = await sql`
+    SELECT
+      v.*,
+      dh.id AS history_id
+    FROM
+      vehicles v
+      JOIN driver_history dh
+        ON dh.van_id        = v.id
+       AND dh.driver_id     = ${staffId}
+       AND dh.dropoff_date  IS NULL
+    WHERE
+      v.is_deleted = FALSE;
+  `;
+  console.log(result);
+  return result;
+}
+
+
+
+async function assignVan(van_id, driver_id, pickUpMileage) {
+  const result = await sql`
+    INSERT INTO driver_history (
+      driver_id,
+      van_id,
+      pickup_date,
+      pick_up_mileage,
+      dropoff_date
+    ) VALUES (
+      ${driver_id},
+      ${van_id},
+      CURRENT_TIMESTAMP,
+      ${pickUpMileage},
+      NULL
+    )
+    RETURNING *;
+  `;
+  return result;
+}
+async function vanDropOff(history_id, drop_off_mileage, note) {
+  const result = await sql`
+    UPDATE driver_history
+    SET
+      dropoff_date      = CURRENT_TIMESTAMP,
+      drop_off_mileage  = ${drop_off_mileage},
+      note              = COALESCE(note || ' | ', '') || ${note}
+    WHERE
+      id = ${history_id}
+      AND dropoff_date IS NULL
+    RETURNING *;
+  `;
+  return result;
+}
+
+async function getDriverHistoryForVan(vanId) {
+  const result = await sql`
+    SELECT
+      dh.id               AS history_id,
+      dh.driver_id        AS driver_id,
+      (s.first_name || ' ' || s.last_name) AS driver_name,
+      dh.pickup_date      AS pickup_date,
+      dh.dropoff_date     AS dropoff_date,
+      dh.pick_up_mileage  AS pick_up_mileage,
+      dh.drop_off_mileage AS drop_off_mileage,
+      dh.note             AS note
+    FROM
+      driver_history dh
+      LEFT JOIN staff s ON dh.driver_id = s.id
+    WHERE
+      dh.van_id = ${vanId}
+    ORDER BY
+      dh.pickup_date DESC;
+  `;
+  return result;
+}
+
+
+module.exports = {getDriverHistoryForVan, vanDropOff, updateLastMileage, assignVan, getVansInUseByStaff, assignVan, getVansNotInUse, getAllDrivers, getUserDetailsById, deleteUserById, getRequiredCountByRoleId, deleteAssignment, countAssignedStaff, updateShiftRoleAssignment, insertShiftRoleAssignments, getProjectsForWeek, getProjectsByClientAndDate, getProjectsByClientId, insertProjectData, getAllClients, createClient, getGarageAppointments, getAllGarageAppointments, bookGarageAppointment, addGarage, getAllGarages, updateUserById, getAllUsers, getUserById, updateUserPasswordById, getUserByEmail, insertStaff, returnVan, addDriverHistory, getDriverHistoryByVan, fetchVehiclebyReg, fetchVehicles, insertVehicle, softDeleteVehicle, reAddsoftDeletedVehicle, fetchVehiclebyId, vanIssues, fixVanIssue, createVanIssue }

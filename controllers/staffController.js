@@ -1,5 +1,5 @@
 const {Staff} = require('../Class/Staff.js'); // the Staff class
-const { insertStaff, getAllUsers } = require('../config/dbops.js');
+const { insertStaff, getAllUsers, deleteUserById, getUserDetailsById } = require('../config/dbops.js');
 
 const addNewStaff = async (req, res, next) => {
   try {
@@ -49,6 +49,48 @@ const editUser = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: 'User ID is required.' });
+    }
+
+    const deletedUser = await deleteUserById(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Server error while deleting user.' });
+  }
+}
+
+const getStaffDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: 'User ID is required.' });
+    }
+
+    const user = await getUserDetailsById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    res.status(500).json({ message: 'Server error while fetching user details.' });
+  }
+};
 
 
-module.exports = {editUser, addNewStaff, getAllUsersController}
+
+module.exports = {getStaffDetails, deleteUser,editUser, addNewStaff, getAllUsersController}

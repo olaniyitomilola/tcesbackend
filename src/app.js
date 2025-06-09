@@ -8,6 +8,7 @@ const garageRoute = require(`../routes/garageRoute.js`);
 const clientRoute = require('../routes/clientRoute.js');
 const projectRoute = require('../routes/projectRoute.js')
 const errorHandler = require(`../middlewares/errorHandler.js`);
+const { sendEmail } = require('../services/sendGridService.js');
 
 
 dotenv.config();
@@ -37,5 +38,6 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
+ // sendEmail('olaniyitomilola@gmail.com', 'Server Started', 'The server has started successfully.', '<strong>The server has started successfully.</strong>');
   console.log(`Server running on port ${PORT}`);
 });
