@@ -1,7 +1,10 @@
 const Cache = require(`../services/cacheServices`);
 const Auth = require(`../services/AuthService`);
 const dotenv = require('dotenv');
-const Vehicle = require(`../Class/Vehicle`)
+const Vehicle = require(`../Class/Vehicle`);
+const logger = require('../utils/logger');
+
+
 
 let url = "https://history.mot.api.gov.uk/v1/trade/vehicles";
 
@@ -36,7 +39,7 @@ const getVehicleFromAPI = async (regNumber) => {
         return {name: type, recall: data.hasOutstandingRecall == 'Yes'? 'Yes' : 'Unknown'};
 
     } catch (error) {
-        console.error('Error fetching vehicle:', error);
+        logger.error('Error fetching vehicle:', error);
     }
 };
 
@@ -51,10 +54,10 @@ const getAllVehicleFromAPIVin = (vin)=>{
         }
         url = url+`/vin/${vin}`;
 
-        console.log(url)
+        logger.info(url)
         
     } catch (error) {
-        console.error(error);
+        logger.error(error);
     }
 }
 

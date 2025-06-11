@@ -1,7 +1,8 @@
 const Cache = require(`../services/cacheServices`);
 const Auth = require(`../services/AuthService`);
 const dotenv = require('dotenv');
-const Vehicle = require(`../Class/Vehicle`)
+const Vehicle = require(`../Class/Vehicle`);
+const logger = require('../utils/logger');
 
 let url = "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles";
 
@@ -30,7 +31,7 @@ const getVehicleDataFromAPI = async (body) => {
         return data;
 
     } catch (error) {
-        console.error('Error fetching vehicle:', error);
+        logger.error('Error fetching vehicle:', error);
     }
 };
 
