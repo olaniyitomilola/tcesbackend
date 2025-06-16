@@ -31,6 +31,8 @@ const getVanWithReg = async (req, res, next) => {
 
             logger.info('van Mot:', vanMot)
             logger.info('van Deet:', vanDeets)
+            console.log('van Mot:', vanMot)
+            console.log('van deets:', vanDeets)
             
             res.status(404).json({ body: `not found` })
         }
@@ -43,6 +45,7 @@ const getVanWithReg = async (req, res, next) => {
         res.json(vehicle);
     } catch (error) {
         logger.error('error:',error)
+        console.log('error:',error)
         next(error);
     }
 }

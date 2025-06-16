@@ -11,8 +11,8 @@ const scope = 'https://tapi.dvsa.gov.uk/.default';
 
 const motdata = qs.stringify({
   grant_type: 'client_credentials',
-  client_id: process.env.client_id,
-  client_secret: process.env.client_secret,
+  client_id: process.env.CLIENT_ID,
+  client_secret: process.env.CLIENT_SECRET,
   scope: scope
 })
 
@@ -21,7 +21,8 @@ const headers = {
 };
 
 const motAPIAuthenticate = async ()=>{
-  logger.info('auth info', motdata)
+ logger.info('auth info', motdata)
+ console.log('auth info', motdata)
  await axios.post(tokenUrl, motdata, { headers })
   .then(response => {
     cache.setAccessToken(response.data.access_token)
