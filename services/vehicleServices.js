@@ -12,11 +12,13 @@ const getVehicleFromAPI = async (regNumber) => {
     // Check if there is a logged token
     let token = await Cache.getAccessToken();
 
+
     try {
         if (!token) {
             await Auth.motAPIAuthenticate();
             token = await Cache.getAccessToken();
         }
+        logger.info('token:',token)
 
         const apiUrl = `${url}/registration/${regNumber}`;
 

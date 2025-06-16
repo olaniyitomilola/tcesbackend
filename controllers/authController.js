@@ -1,5 +1,7 @@
 const { getUserByEmail, updateUserPasswordById, getUserById } = require('../config/dbops'); // Adjust path as needed
 const bcrypt = require('bcrypt');
+const logger = require('../utils/logger');
+
 
 const validateEmail = async (req, res, next) => {
   try {

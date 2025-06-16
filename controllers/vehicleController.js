@@ -2,7 +2,7 @@ const { Vehicle } = require("../Class/Vehicle");
 const vehicleService = require(`../services/vehicleServices`);
 const vesAPIService = require(`../services/VESAPIService`)
 const crypto = require('crypto');
-
+const logger = require('../utils/logger');
 const { fetchVehicles, insertVehicle, fetchVehiclebyReg, vanIssues, fixVanIssue, createVanIssue, getAllDrivers, getVansInUseByStaff, getVansNotInUse, assignVan, updateLastMileage, vanDropOff, getDriverHistoryForVan } = require("../config/dbops");
 //helper to fix new vans without mot expiry
 function addYearsAndGetLastDay(ymString, yearsToAdd) {
@@ -28,6 +28,10 @@ const getVanWithReg = async (req, res, next) => {
         const vanDeets = await vesAPIService.getVehicleDataFromAPI(bod)
 
         if (!vanMot || !vanDeets) {
+
+            logger.info('van Mot:', vanMot)
+            logger.info('van Deet:', vanDeets)
+            
             res.status(404).json({ body: `not found` })
         }
 
@@ -38,6 +42,7 @@ const getVanWithReg = async (req, res, next) => {
 
         res.json(vehicle);
     } catch (error) {
+        logger.error('error:',error)
         next(error);
     }
 }

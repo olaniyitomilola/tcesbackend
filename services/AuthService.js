@@ -2,9 +2,11 @@ const axios = require('axios');
 const qs = require('qs');
 const cache = require(`../services/cacheServices`)
 const dotenv = require('dotenv');
+const logger = require('../utils/logger');
+
 dotenv.config();
 
-const tokenUrl = "https://login.microsoftonline.com/a455b827-244f-4c97-b5b4-ce5d13b4d00c/oauth2/v2.0/token"
+const tokenUrl = process.env.TOKEN_URL 
 const scope = 'https://tapi.dvsa.gov.uk/.default';
 
 const motdata = qs.stringify({
@@ -19,6 +21,7 @@ const headers = {
 };
 
 const motAPIAuthenticate = async ()=>{
+  logger.info('auth info', motdata)
  await axios.post(tokenUrl, motdata, { headers })
   .then(response => {
     cache.setAccessToken(response.data.access_token)
